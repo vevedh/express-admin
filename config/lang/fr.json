@@ -1,0 +1,51 @@
+{
+    "name": "Francais",
+
+    "logo": "GESTION PPTG",
+
+    "layout": "Layout",
+    "centered": "Centrer",
+    "streched": "Large",
+    "theme": "Thème",
+    "language": "Language",
+
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "username": "Utilisateur",
+    "password": "Mot de passe",
+    "access-denied": "Accès refusé!",
+    "find-user": "Utilisateur inexistant!",
+    "invalid-password": "Mot de passe invalide!",
+
+    "home": "Accueil",
+    "site-admin": "PPTG administration",
+    "tables": "Tables",
+    "views": "Views",
+    "others": "Options",
+
+    "select": "Selectionner",
+    "to-change": "pour changer",
+    "filter": "Filtre",
+    "clear": "Effacer",
+    "order": "Ranger par",
+    "asc": "Asc",
+    "desc": "Desc",
+    "or": "or",
+    "today": "Aujoud'hui",
+
+    "add-another": "Ajouter un autre",
+    "remove": "Supprimer",
+    "add": "Ajouter",
+    "change": "Changer",
+    "delete": "Effacer",
+    "save": "Sauver",
+    "save-continue": "Sauver et continuer d'editer",
+    "save-add": "Sauver et ajouter un autre",
+
+    "success": "Réussie",
+    "error": "Erreur",
+    "saved": "L'enregistrement à été effectué",
+    "checkout": "Vérifiez les champs en surbrillance",
+
+    "notfound": "Page non trouvée."
+}
