@@ -1,4 +1,3 @@
-
 require('colors');
 
 var fs = require('fs'),
@@ -32,14 +31,14 @@ var Xsql = require('xsql'),
 
 
 // creates project's config files
-function initCommandLine (args, cb) {
+function initCommandLine(args, cb) {
     if (!fs.existsSync(args.dpath)) {
         console.log('Config directory path doesn\'t exists!'.red);
         process.exit();
     }
     if (project.exists(args.dpath)) return cb();
     // else
-    cli.promptForData(function (err, data) {
+    cli.promptForData(function(err, data) {
         if (err) return cb(err);
         project.create(args.dpath, data, cb);
     });
@@ -47,7 +46,7 @@ function initCommandLine (args, cb) {
 
 // sets args.db.client
 // updates args.settings
-function initDatabase (args, done) {
+function initDatabase(args, done) {
     try {
         var client = new Client(args.config);
     } catch (err) {
@@ -55,27 +54,28 @@ function initDatabase (args, done) {
     }
 
     async.series([
-        function (done) {
-            var options = args.config.mysql||args.config.pg||args.config.sqlite;
-            client.connect(options, function (err) {
+        function(done) {
+            var options = args.config.mysql || args.config.pg || args.config.sqlite;
+            client.connect(options, function(err) {
                 if (err) return done(err);
                 var x = new Xsql({
                     dialect: client.name,
-                    schema: client.config.schema});
-                if ('function'===typeof qb) qb = qb(x);
+                    schema: client.config.schema
+                });
+                if ('function' === typeof qb) qb = qb(x);
                 done();
             });
         },
-        function (done) {
+        function(done) {
             var sql = qb.partials.tables(client.config.schema);
-            client.query(sql, function (err, rows) {
+            client.query(sql, function(err, rows) {
                 if (err) return done(err);
                 if (!rows.length) return done(new Error('Empty schema!'));
                 done();
             });
         },
-        function (done) {
-            schema.getData(client, function (err, data) {
+        function(done) {
+            schema.getData(client, function(err, data) {
                 if (err) return done(err);
                 // write back the settings
                 var fpath = path.join(args.dpath, 'settings.json'),
@@ -86,15 +86,15 @@ function initDatabase (args, done) {
                 done();
             });
         }
-    ], function (err) {
+    ], function(err) {
         if (err) return done(err);
-        args.db = {client:client};
+        args.db = { client: client };
         done();
     });
 }
 
 // modifies args
-function initSettings (args) {
+function initSettings(args) {
     // route variables
 
     // upload
@@ -103,11 +103,11 @@ function initSettings (args) {
     if (!fs.existsSync(upload)) fs.mkdirSync(upload);
 
     // languages
-    args.langs = (function () {
+    args.langs = (function() {
         var dpath = path.join(__dirname, 'config/lang'),
             files = fs.readdirSync(dpath),
             langs = {};
-        for (var i=0; i < files.length; i++) {
+        for (var i = 0; i < files.length; i++) {
             var name = files[i].replace(path.extname(files[i]), '');
             langs[name] = require(path.join(dpath, files[i]));
         }
@@ -115,7 +115,7 @@ function initSettings (args) {
     }());
 
     // slug to table map
-    args.slugs = (function () {
+    args.slugs = (function() {
         var slugs = {};
         for (var key in args.settings) {
             slugs[args.settings[key].slug] = key;
@@ -136,11 +136,11 @@ function initSettings (args) {
     }
     var events = fpath ? require(fpath) : {};
     if (!events.hasOwnProperty('preSave'))
-        events.preSave = function (req, res, args, next) {next()};
+        events.preSave = function(req, res, args, next) { next() };
     if (!events.hasOwnProperty('postSave'))
-        events.postSave = function (req, res, args, next) {next()};
+        events.postSave = function(req, res, args, next) { next() };
     if (!events.hasOwnProperty('preList'))
-        events.preList = function (req, res, args, next) {next()};
+        events.preList = function(req, res, args, next) { next() };
     args.events = events;
 
 
@@ -149,43 +149,42 @@ function initSettings (args) {
     // root
     if (args.config.app.root) {
         var root = args.config.app.root;
-        if (/.*\/$/.test(root)) args.config.app.root = root.slice(0,-1);
+        if (/.*\/$/.test(root)) args.config.app.root = root.slice(0, -1);
     } else {
         args.config.app.root = '';
     }
 
     // layouts/themes/languages
     args.layouts = args.config.app.layouts;
-    args.themes = args.config.app.themes
-        ? {theme: require(path.join(__dirname, 'config/themes'))} : null;
+    args.themes = args.config.app.themes ? { theme: require(path.join(__dirname, 'config/themes')) } : null;
 
-    args.languages = (function () {
+    args.languages = (function() {
         if (!args.config.app.languages) return null;
         var langs = [];
         for (var key in args.langs) {
-            langs.push({key: key, name: args.langs[key].name});
+            langs.push({ key: key, name: args.langs[key].name });
         }
-        return {language: langs};
+        return { language: langs };
     }());
 
     // static
     args.libs = dcopy(require(path.join(__dirname, 'config/libs')));
-    args.libs.external = {css: [], js: []};
+    args.libs.external = { css: [], js: [] };
     for (var key in args.custom) {
         var assets = args.custom[key].public;
         if (!assets) continue;
         if (assets.local) {
-            args.libs.js = args.libs.js.concat(assets.local.js||[]);
-            args.libs.css = args.libs.css.concat(assets.local.css||[]);
+            args.libs.js = args.libs.js.concat(assets.local.js || []);
+            args.libs.css = args.libs.css.concat(assets.local.css || []);
         }
         if (assets.external) {
-            args.libs.external.js = args.libs.external.js.concat(assets.external.js||[]);
-            args.libs.external.css = args.libs.external.css.concat(assets.external.css||[]);
+            args.libs.external.js = args.libs.external.js.concat(assets.external.js || []);
+            args.libs.external.css = args.libs.external.css.concat(assets.external.css || []);
         }
     }
 }
 
-function initServer (args) {
+function initServer(args) {
     var r = require('./routes');
 
     // general settings
@@ -194,20 +193,24 @@ function initServer (args) {
         .set('view engine', 'html')
         .engine('html', consolidate.hogan)
 
-        .use(logger('dev'))
+    .use(logger('dev'))
         .use(bodyParser.json())
-        .use(bodyParser.urlencoded({extended: true}))
+        .use(bodyParser.urlencoded({ extended: true }))
         .use(multipart())
 
-        .use(cookieParser())
-        .use(args.session || session({name: 'express-admin', secret: 'very secret - required',
-                        saveUninitialized: true, resave: true}))
-        .use(r.auth.status)// session middleware
+    .use(cookieParser())
+        .use(args.session || session({
+            name: 'express-admin',
+            secret: 'very secret - required',
+            saveUninitialized: true,
+            resave: true
+        }))
+        .use(r.auth.status) // session middleware
         .use(csrf())
 
-        .use(methodOverride())
+    .use(methodOverride())
         .use(serveStatic(path.join(__dirname, 'public')))
-        .use(serveStatic((function () {
+        .use(serveStatic((function() {
             var dpath = path.resolve(__dirname, 'node_modules/express-admin-static');
             if (!fs.existsSync(dpath)) {
                 dpath = path.resolve(__dirname, '../express-admin-static');
@@ -226,13 +229,13 @@ function initServer (args) {
     }
 
     // pass server wide variables
-    app.use(function (req, res, next) {
+    app.use(function(req, res, next) {
         // app data
         res.locals._admin = args;
 
         // i18n
-        var lang = req.cookies.lang || 'en';
-        res.cookie('lang', lang, {path: '/', maxAge: 900000000});
+        var lang = req.cookies.lang || 'fr';
+        res.cookie('lang', lang, { path: '/', maxAge: 900000000 });
         moment.locale(lang == 'cn' ? 'zh-cn' : lang);
 
         // template vars
@@ -254,8 +257,10 @@ function initServer (args) {
     // init regexes
     var _routes = routes.init(args.settings, args.custom);
 
+
+    // enregistre l'application custom
     // register custom apps
-    (function () {
+    (function() {
         var have = false;
         for (var key in args.custom) {
             var _app = args.custom[key].app;
@@ -296,7 +301,7 @@ if (require.main === module) {
     var args = {
         dpath: path.resolve(cli.getConfigPath())
     }
-    initCommandLine(args, function (err) {
+    initCommandLine(args, function(err) {
         if (err) return console.log(err.message.red);
 
         args.config = require(path.join(args.dpath, 'config.json'));
@@ -304,7 +309,9 @@ if (require.main === module) {
         args.custom = require(path.join(args.dpath, 'custom.json'));
         args.users = require(path.join(args.dpath, 'users.json'));
 
-        initDatabase(args, function (err) {
+        //args.pluggins = require(path.join(args.dpath,'pluggins.jon'));
+
+        initDatabase(args, function(err) {
             if (err) return console.log(err.message.red);
 
             // extended settings
@@ -312,9 +319,9 @@ if (require.main === module) {
 
             var app = initServer(args);
 
-            app.listen(args.config.server.port, function () {
+            app.listen(args.config.server.port, function() {
                 console.log('Express Admin listening on port'.grey,
-                            args.config.server.port.toString().green);
+                    args.config.server.port.toString().green);
             });
         });
     });
@@ -326,8 +333,8 @@ exports = module.exports = {
     initDatabase: initDatabase,
     initSettings: initSettings,
     initServer: initServer,
-    init: function (config, done) {
-        this.initDatabase(config, function (err) {
+    init: function(config, done) {
+        this.initDatabase(config, function(err) {
             if (err) return done(err);
             this.initSettings(config);
             return done(null, this.initServer(config));
